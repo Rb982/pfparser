@@ -2,8 +2,14 @@
 testurl="https://aonprd.com/MonsterDisplay.aspx?ItemName=Dire%20Ape%20(Gigantopithecus)"
 #"https://aonprd.com/MonsterDisplay.aspx?ItemName=Boar"
 #Placeholder - eventually this'll be user provided
+
 image="https://en.numista.com/catalogue/photos/tokens/34184-original.jpg"
-inputtext=$(curl "$testurl")
+#echo "https://aonprd.com/MonsterDisplay.aspx?ItemName=$1"
+#sed s/\(/%28/g | sed s/\)/%29/g |
+temp=$(echo "$1" | sed s/\'/%27/g | sed 's/ /%20/g' )
+echo "$temp"
+inputtext=$(curl "https://aonprd.com/MonsterDisplay.aspx?ItemName=$temp")
+#echo $inputtext
 nameregex="<h1 class=\"title\">(([a-z]|[A-Z]| |\)|\(|,)*)<\/h1>"
 alignmentsizetyperegex="(LG|LN|LE|NG|N|NE|CG|CN|CE) (Fine|Diminutive|Tiny|Small|Medium|Large|Huge|Gargantuan|Colossal) (aberration|animal|construct|dragon|fey|humanoid|magical beast|monstrous humanoid|ooze|outsider|plant|undead|vermin)"
 expregex="XP<\/b> ([0-9]+)"
@@ -25,6 +31,8 @@ maneuverregex="CMB<\/b> \+([0-9]*); <b>CMD<\/b> ([0-9]*)"
 skillslabels=("acrobatics" "appraise" "bluff" "climb" "craft" "diplomacy" "disable_device" "disguise" "escape_artist" "fly" "handle_animal" "heal" "intimidate" "knowledge_arcana" "knowledge_dungeoneering" "knowledge_engineering" "knowledge_geography" "knowledge_history" "knowledge_local" "knowledge_nature" "knowledge_nobility" "knowledge_planes" "knowledge_religion" "linguistics" "perception" "perform" "profession" "ride" "sense_motive" "sleight_of_hand" "spellcraft" "stealth" "survival" "swim" "use_magic_device")
 skillsstrings=("Acrobatics" "Appraise" "Bluff" "Climb" "Craft" "Diplomacy" "Disable Device" "Disguise" "Escape Artist" "Fly" "Handle Animal" "Heal" "Intimidate" "Knowledge \(Arcana\)" "Knowledge \(Dungeoneering\)" "Knowledge \(Engineering\)" "Knowledge \(Geography\)" "Knowledge \(History\)" "knowledge \(Local\)" "Knowledge \(Nature\)" "Knowledge \(Nobility\)" "Knowledge \(Planes\)" "Knowledge \(Religion\)" "Linguistics" "Perception" "Perform" "Profession" "Ride" "Sense Motive" "Sleight of Hand" "Spellcraft" "Stealth" "Survival" "Swim" "Use Magic Device")
 spellsregexes=""
+attacksregex="Melee<\/b> ([^<>]*)"
+
 
 #function for computing the id of an entry; TODO
 function get_id 
@@ -116,6 +124,9 @@ echo "${BASH_REMATCH[1]}"
 echo "${BASH_REMATCH[2]}"
 cmb="${BASH_REMATCH[1]}"
 cmd="${BASH_REMATCH[2]}"
+[[ $inputtext =~ $attacksregex ]]
+echo "Attacks"
+echo "${BASH_REMATCH[1]}"
 #perception is a special case; since it's used on token objects it needs to be handled as a skill and as an independent variable
 percregex="Skills.*Perception \+([0-9]*)"
 perception="0"
